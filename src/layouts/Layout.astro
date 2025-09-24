@@ -12,6 +12,20 @@ import "../styles/global.css";
     <title>Astro Basics</title>
   </head>
   <body>
+    <nav class="bg-gray-100 p-4 rounded mb-6">
+      <ul class="flex gap-4 text-blue-600 font-medium">
+        <li><a href="/" class="hover:underline">Index</a></li>
+        <li><a href="/penguins" class="hover:underline">Penguins</a></li>
+        <li>
+          <a href="/penguins-filter" class="hover:underline"
+            >Penguins + filtre espèce</a>
+        </li>
+        <li>
+          <a href="/penguins-multiple-filter" class="hover:underline"
+            >Penguins + filtres multiples</a>
+        </li>
+      </ul>
+    </nav>
     <slot />
   </body>
 </html>
