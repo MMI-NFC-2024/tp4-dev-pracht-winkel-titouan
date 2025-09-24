@@ -1,0 +1,75 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout>
+    <h1 class="text-2xl">Olympians — filtres</h1>
+
+    <!-- Select pour le sport -->
+    <label for="sport" class="block mt-2 mb-1">Sport :</label>
+    <select name="sport" id="sport" class="border rounded p-1">
+        <option value="">Tous les sports</option>
+    </select>
+
+    <!-- Select pour le sexe -->
+    <label for="sex" class="block mt-2 mb-1">Sexe :</label>
+    <select name="sex" id="sex" class="border rounded p-1">
+        <option value="">Tous</option>
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+    </select>
+
+    <!-- Conteneur du graphique -->
+    <div id="olymplot" class="mt-6"></div>
+</Layout>
+
+<script>
+    import * as Plot from "https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/+esm";
+    import olympians from "../assets/olympians.json";
+
+    const selectSport = document.getElementById("sport");
+    const selectSex = document.getElementById("sex");
+
+    // Remplir dynamiquement les sports
+    const sports = Array.from(new Set(olympians.map((d) => d.sport))).sort();
+    sports.forEach((s) => {
+        const opt = document.createElement("option");
+        opt.value = s;
+        opt.textContent = s;
+        selectSport.append(opt);
+    });
+
+    function renderPlot() {
+        const sport = selectSport.value;
+        const sex = selectSex.value;
+
+        const div = document.getElementById("olymplot");
+        div.innerHTML = "";
+
+        // Filtrage selon sport et sexe
+        const filtered = olympians.filter(
+            (d) => (!sport || d.sport === sport) && (!sex || d.sex === sex),
+        );
+
+        const plot = Plot.plot({
+            marks: [
+                Plot.dot(filtered, {
+                    x: "height",
+                    y: "weight",
+                    stroke: "sex",
+                    title: (d) => `${d.name}, ${d.sport}, ${d.sex}`,
+                }),
+            ],
+            grid: true,
+            x: { label: "Height (cm)" },
+            y: { label: "Weight (kg)" },
+        });
+
+        div.append(plot);
+    }
+
+    [selectSport, selectSex].forEach((el) =>
+        el.addEventListener("change", renderPlot),
+    );
+    renderPlot();
+</script>
