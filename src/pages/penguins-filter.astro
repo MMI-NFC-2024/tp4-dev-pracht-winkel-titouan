@@ -1,0 +1,69 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout>
+  <h1 class="text-2xl">Penguins avec filtre</h1>
+
+  <!-- Menu déroulant -->
+  <label for="species" class="block mb-2">Choisir une espèce :</label>
+  <select name="species" id="species" class="border rounded p-1">
+    <option value="">All species</option>
+    <option value="Adelie">Adelie</option>
+    <option value="Chinstrap">Chinstrap</option>
+    <option value="Gentoo">Gentoo</option>
+  </select>
+
+  <!-- Conteneur du graphique -->
+  <div id="myplot" class="mt-4"></div>
+</Layout>
+
+<script>
+  // Importe la librairie Plot d'ObservableHQ
+  import * as Plot from "https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/+esm";
+  // Importe les données des manchots depuis un fichier JSON
+  import penguins from "../assets/penguins.json";
+
+  // Récupère l'élément select pour choisir l'espèce
+  const selectSpecies = document.getElementById("species");
+
+  // Fonction pour afficher le graphique
+  function renderPlot() {
+    // Récupère l'espèce sélectionnée
+    const species = selectSpecies.value;
+
+    // Sélectionne la div où le graphique sera affiché
+    const div = document.getElementById("myplot");
+
+    // Vide le contenu précédent de la div
+    div.innerHTML = "";
+
+    // Filtre les données si une espèce est sélectionnée
+    const filtered = species
+      ? penguins.filter((d) => d.species === species)
+      : penguins;
+
+    // Crée le graphique avec Plot
+    const plot = Plot.plot({
+      marks: [
+        Plot.dot(filtered, {
+          x: "culmen_length_mm", // Axe X : longueur du bec
+          y: "culmen_depth_mm", // Axe Y : profondeur du bec
+          stroke: "species", // Couleur selon l'espèce
+        }),
+      ],
+      grid: true,
+      x: { label: "Culmen length (mm)" },
+      y: { label: "Culmen depth (mm)" },
+    });
+
+    // Ajoute le graphique à la div
+    div.append(plot);
+  }
+
+  // Ajoute un écouteur d'événement pour le changement d'espèce (appel 'renderPlot')
+  selectSpecies.addEventListener("change", renderPlot);
+
+  // Affiche le graphique au chargement de la page
+  renderPlot();
+</script>

@@ -1,0 +1,91 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout>
+  <h1 class="text-2xl">Penguins avec filtres</h1>
+
+  <!-- Menu déroulant espèces -->
+  <label for="species" class="block mt-2 mb-1">Espèce :</label>
+  <select name="species" id="species" class="border rounded p-1">
+    <option value="">All species</option>
+    <option value="Adelie">Adelie</option>
+    <option value="Chinstrap">Chinstrap</option>
+    <option value="Gentoo">Gentoo</option>
+  </select>
+
+  <!-- Menu déroulant île -->
+  <label for="island" class="block mt-2 mb-1">Île :</label>
+  <select name="island" id="island" class="border rounded p-1">
+    <option value="">All islands</option>
+    <option value="Biscoe">Biscoe</option>
+    <option value="Dream">Dream</option>
+    <option value="Torgersen">Torgersen</option>
+  </select>
+
+  <!-- Menu déroulant sexe -->
+  <label for="sex" class="block mt-2 mb-1">Sexe :</label>
+  <select name="sex" id="sex" class="border rounded p-1">
+    <option value="">All sexes</option>
+    <option value="MALE">Male</option>
+    <option value="FEMALE">Female</option>
+  </select>
+
+  <!-- Conteneur du graphique -->
+  <div id="myplot" class="mt-6"></div>
+</Layout>
+
+<script>
+  // Importe la librairie Plot d'ObservableHQ
+  import * as Plot from "https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6/+esm";
+  // Importe les données des manchots depuis un fichier JSON
+  import penguins from "../assets/penguins.json";
+
+  // Récupère les éléments select
+  const selectSpecies = document.getElementById("species");
+  const selectIsland = document.getElementById("island");
+  const selectSex = document.getElementById("sex");
+
+  // Fonction pour afficher le graphique
+  function renderPlot() {
+    const species = selectSpecies.value;
+    const island = selectIsland.value;
+    const sex = selectSex.value;
+
+    const div = document.getElementById("myplot");
+    div.innerHTML = "";
+
+    // Applique les filtres cumulés
+    const filtered = penguins.filter((d) => {
+      return (
+        (!species || d.species === species) &&
+        (!island || d.island === island) &&
+        (!sex || d.sex === sex)
+      );
+    });
+
+    const plot = Plot.plot({
+      marks: [
+        Plot.dot(filtered, {
+          x: "culmen_length_mm",
+          y: "culmen_depth_mm",
+          stroke: "species",
+          title: (d) => `${d.species} (${d.island}, ${d.sex})`,
+        }),
+      ],
+      grid: true,
+      x: { label: "Culmen length (mm)" },
+      y: { label: "Culmen depth (mm)" },
+    });
+
+    div.append(plot);
+  }
+
+  // Ajoute un écouteur d'événement pour chaque select
+  [selectSpecies, selectIsland, selectSex].forEach((el) =>
+    el.addEventListener("change", renderPlot),
+  );
+
+  // Affiche le graphique au chargement de la page
+  renderPlot();
+</script>
